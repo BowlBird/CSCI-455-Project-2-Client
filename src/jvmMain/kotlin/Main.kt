@@ -5,12 +5,14 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import kotlin.concurrent.thread
 
 @Composable
 @Preview
 fun App() = MaterialTheme {
-    val viewModel = ViewModel.Factory()
+    val viewModel = ViewModel.Factory
     val state = viewModel.uiState.collectAsState()
+    viewModel.openConnection("::1")
 
     Button(onClick = {
         viewModel.updateUiState(

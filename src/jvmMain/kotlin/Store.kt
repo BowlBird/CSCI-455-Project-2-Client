@@ -1,40 +1,44 @@
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import java.net.InetSocketAddress
 import java.net.Socket;
-import java.net.InetAddress
+import java.net.SocketAddress
 
 data class UiState(val text: String = "")
 
-private const val PORT = 5000
-private const val IP = ""
+private const val PORT = 50000
 
-class ViewModel {
-    private val _uiState = MutableStateFlow(UiState())
-    private val _socket = IP//Socket(IP, PORT);
-    init {
-        println(_socket)
+class ViewModel private constructor() {
+    companion object {
+        @Volatile
+        private var _viewModel: ViewModel? = null
+        val Factory
+            get() = _viewModel ?: synchronized(this) { ViewModel().also { _viewModel = it } }
     }
+
+    private val _uiState = MutableStateFlow(UiState())
+
     val uiState: StateFlow<UiState>
         get() = _uiState
 
-    val socket: String
-        get() = _socket
+    var connection: Connection<String>? = null
+        private set
+
+    fun openConnection(ip: String = ""): Connection<String>? {
+        val socket = try { Socket(ip, PORT) } catch (_: Exception) {null} ?: return null
+        connection?.interrupt()
+        connection = Connection(socket)
+        return connection
+    }
+
+    fun closeConnection() {
+        connection = null
+    }
 
     fun updateUiState(state: UiState) {
         _uiState.update {
             state
-        }
-    }
-
-    companion object {
-        private var viewModel: ViewModel? = null
-
-        fun Factory(): ViewModel {
-             if (viewModel == null) {
-                viewModel = ViewModel()
-             }
-            return viewModel as ViewModel
         }
     }
 }
