@@ -21,6 +21,7 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
+                implementation("org.jetbrains.compose.material3:material3-desktop:1.2.1")
                 implementation(compose.desktop.currentOs)
             }
         }
