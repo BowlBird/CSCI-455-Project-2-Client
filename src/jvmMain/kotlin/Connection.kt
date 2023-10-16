@@ -1,6 +1,7 @@
 import java.io.EOFException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.lang.IndexOutOfBoundsException
 import java.net.ConnectException
 import java.net.Socket
 import java.net.SocketException
@@ -70,9 +71,11 @@ private class Connection<T>(private val socket: Socket, private val  onReceive: 
                 with(input.readObject()) {
                     try {
                         //try to cast and add to internal message list
+                        @Suppress("UNCHECKED_CAST")
                         val message = this as T
+
                         _messages += message
-                        println("Successfully received '$message' from Endpoint.")
+                        println("Successfully received '${message.toString().replace("\n", "\\n")}' from Endpoint.")
 
                         //induce callback
                         onReceive()
@@ -98,10 +101,10 @@ private class Connection<T>(private val socket: Socket, private val  onReceive: 
         return try {
             output.writeObject(message)
             output.flush()
-            println("Successfully sent '$message' to Endpoint")
+            println("Successfully sent '${message.toString().replace("\n", "\\n")}' to Endpoint")
             true
         } catch( e: Exception) {
-            println("Failed to send '$message' to Endpoint")
+            println("Failed to send '${message.toString().replace("\n", "\\n")}' to Endpoint")
             false
         }
     }
@@ -142,8 +145,8 @@ class ConnectionRepository<T>(
                 //need some logic to handle if a connection takes too long to connect
                 val currentThread = Thread.currentThread()
                 //will interrupt this thread if it takes too long
-                val timerThread = thread {
-                    Thread.sleep(500)
+                thread {
+                    Thread.sleep(1000)
                     if (currentThread.isAlive) {
                         currentThread.interrupt()
                         println("Server Connection Interrupted. Timeout.")
@@ -198,6 +201,7 @@ class ConnectionRepository<T>(
             println("Disposing Previous Connection")
             _connection?.interrupt()
             _connection = null
+            onEndpointDisconnect()
         }
     }
 
@@ -216,5 +220,15 @@ class ConnectionRepository<T>(
     fun sendMessage(message: T): Boolean {
         println("Passing message underlying connection...")
         return _connection?.sendMessage(message) ?: false
+    }
+
+    /**
+     * Pops the oldest message off of the message list.
+     * If there are no elements, null will be returned.
+     */
+    fun popMessage(): T? {
+        val message = try {messages[0]} catch(e: IndexOutOfBoundsException) {null}
+        messages = messages.takeLast(messages.size - 1)
+        return message
     }
 }

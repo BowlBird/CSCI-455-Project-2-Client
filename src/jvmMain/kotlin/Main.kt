@@ -75,7 +75,7 @@ fun ConnectionBar(modifier: Modifier = Modifier) = NavigationBar {
                 onValueChange = {
                     if (it.length < 46) text = it
                 },
-                placeholder = {Text("Endpoint Ip Address...")},
+                placeholder = {Text("Endpoint IP Address...")},
                 singleLine = true,
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = MaterialTheme.colorScheme.background,
