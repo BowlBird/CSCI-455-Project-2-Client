@@ -5,7 +5,7 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-group = "com.example"
+group = "com.ndsu.BrandonAndCarson"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -34,7 +34,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "demo"
+            packageName = "client"
             packageVersion = "1.0.0"
         }
     }

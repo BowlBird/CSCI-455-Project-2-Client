@@ -12,5 +12,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "demo"
+rootProject.name = "client"
 
