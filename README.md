@@ -14,9 +14,19 @@ The client is built with MVVM architecture. With this in mind, each component wi
 
 NOTE: Logs are outputted to the command line the client was launched from **NOT** in the client UI itself! 
 
-## Requirements
-- Java 17+
-- Gradle
+## Building and Running from Source
 
-## Running
-Clone the repo and run `gradle run` in the project's base directory.
+### Requirements
+
+- [JDK 17+](https://www.oracle.com/java/technologies/downloads/#java17)
+- [Gradle](https://gradle.org/install/)
+
+Clone the repo and run `gradle build` in the project's base directory.
+
+## Running from Release
+
+### Requirements
+
+- [JDK 17+](https://www.oracle.com/java/technologies/downloads/#java17)
+
+Download the jar file in the releases tab and run it with `java -jar client.jar`.
