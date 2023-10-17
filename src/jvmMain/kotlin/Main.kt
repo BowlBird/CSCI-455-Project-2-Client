@@ -72,7 +72,7 @@ fun App() = AppTheme(true) {
                     }
                     Row(Modifier.fillMaxWidth()) {
                         //user input fields
-                        CustomTextField(Modifier.weight(1f), name, { name = it }, { Text("Funraiser Name...") })
+                        CustomTextField(Modifier.weight(1f), name, { name = it }, { Text("Fundraiser Name...") })
                         CustomTextField(Modifier.weight(1f), amount, { amount = it }, { Text("Target Amount...") })
                         CustomTextField(
                             Modifier.weight(1f),
