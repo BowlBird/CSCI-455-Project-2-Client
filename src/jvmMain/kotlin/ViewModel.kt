@@ -163,10 +163,12 @@ class ViewModel private constructor(private val connectionRepository: Connection
         }
         //setup onEndpointDisconnect callback
         connectionRepository.onEndpointDisconnect = {
-            //update UI to say no connection
+            //update UI to say no connection and destroy lists
             updateUiState(
                 uiState.value.copy(
-                    connection = connectionRepository.connection ?: ""
+                    connection = connectionRepository.connection ?: "",
+                    currentFundraisers = listOf(),
+                    oldFundraisers = listOf()
                 )
             )
             //try to reconnect to loopback connection

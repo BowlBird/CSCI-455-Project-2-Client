@@ -1,11 +1,17 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "csci.project.client.App"
+    }
+}
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
 }
 
-group = "com.ndsu.BrandonAndCarson"
+group = "csci.project.client.App"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -34,7 +40,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "client"
+            packageName = "csci.project.client.App"
             packageVersion = "1.0.0"
         }
     }
