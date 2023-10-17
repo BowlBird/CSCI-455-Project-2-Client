@@ -15,8 +15,8 @@ The client is built with MVVM architecture. With this in mind, each component wi
 NOTE: Logs are outputted to the command line the client was launched from **NOT** in the client UI itself! 
 
 ## Requirements
-Java 17+
-Gradle
+- Java 17+
+- Gradle
 
 ## Running
 Clone the repo and run `gradle run` in the project's base directory.
