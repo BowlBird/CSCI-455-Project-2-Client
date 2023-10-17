@@ -19,6 +19,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import java.time.LocalDate
+import kotlin.math.round
 
 /**
  * Root App Composable
@@ -185,7 +186,9 @@ fun Fundraiser(modifier: Modifier = Modifier, fundraiser: Fundraiser) {
                 CustomTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = amount,
-                    onValueChange = { amount = it },
+                    onValueChange = {
+                            amount = it
+                    },
                     placeholder = { Text("Amount To Donate...") })
                 Button(modifier = Modifier
                     .fillMaxWidth()
@@ -196,11 +199,14 @@ fun Fundraiser(modifier: Modifier = Modifier, fundraiser: Fundraiser) {
                     val viewModel = ViewModel.Factory
                     //see if the donation textfield can be parsed as money
                     if (amount.toDoubleOrNull() != null) {
-                        val doubleAmount = amount.toDouble()
-                        //tell the endpoint to donate the amount given
-                        viewModel.sendMessage(
-                            "endpoint : DONATE\nid : ${fundraiser.id}\namount : $doubleAmount"
-                        )
+                        //see if the amount is at least one cent
+                        if (round(amount.toDouble() * 100) / 100 > 0) {
+                            val doubleAmount = amount.toDouble()
+                            //tell the endpoint to donate the amount given
+                            viewModel.sendMessage(
+                                "endpoint : DONATE\nid : ${fundraiser.id}\namount : $doubleAmount"
+                            )
+                        }
                     }
                 }) {
                     Text("Donate!")
@@ -245,14 +251,30 @@ fun ConnectionBar(modifier: Modifier = Modifier) = NavigationBar(modifier) {
                 text = if (state.connection != "") "Connected To: ${state.connection}" else "Not Connected...",
                 maxLines = 1
             )
-            //allow for disconnecting
-            Button(modifier = Modifier.padding(5.dp).fillMaxSize().clip(RoundedCornerShape(5.dp)), onClick = {
-                viewModel.closeConnection()
-            },
-                contentPadding = PaddingValues(0.dp),
-                shape = RoundedCornerShape(5.dp)
-            ) {
-                Text("Disconnect")
+            Row {
+                //allow for disconnecting
+                Button(
+                    modifier = Modifier.padding(5.dp).fillMaxSize().clip(RoundedCornerShape(5.dp)).weight(1f),
+                    onClick = {
+                        viewModel.closeConnection()
+                    },
+                    contentPadding = PaddingValues(0.dp),
+                    shape = RoundedCornerShape(5.dp)
+                ) {
+                    Text("Disconnect")
+                }
+                //allow for refreshing data
+                Button(
+                    modifier = Modifier.padding(5.dp).fillMaxSize().clip(RoundedCornerShape(5.dp)).weight(1f),
+                    onClick = {
+                        viewModel.sendMessage("endpoint : LIST\ncurrent : true")
+                        viewModel.sendMessage("endpoint : LIST\ncurrent : false")
+                    },
+                    contentPadding = PaddingValues(0.dp),
+                    shape = RoundedCornerShape(5.dp)
+                ) {
+                    Text("Refresh")
+                }
             }
         }
 

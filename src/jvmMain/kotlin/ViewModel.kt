@@ -138,7 +138,7 @@ class ViewModel private constructor(private val connectionRepository: Connection
                         is ListResponse -> {
                             //extract if this should update current or old fundraisers
                             val currentFundraisers = if (response.current) response.items.sortedBy { it.deadline } else _uiState.value.currentFundraisers
-                            val oldFundraisers = if (!response.current) response.items.sortedBy { it.deadline } else _uiState.value.currentFundraisers
+                            val oldFundraisers = if (!response.current) response.items.sortedBy { it.deadline } else _uiState.value.oldFundraisers
                             //update UI
                             updateUiState(
                                 _uiState.value.copy(
