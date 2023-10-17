@@ -29,4 +29,4 @@ Clone the repo and run `gradle build` in the project's base directory.
 
 - [JDK 17+](https://www.oracle.com/java/technologies/downloads/#java17)
 
-Download the EXE/AppImage file in the releases tab and run it. EXE for Windows. For App Image on Linux, download and extract, then navigate to the "bin" folder and run the file inside.
+Download the Jar file in the releases tab and run it. Ensure that you download the Jar for your OS. Run `java -jar client-<Your OS>.jar`
