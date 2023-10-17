@@ -2,21 +2,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.lang.IllegalArgumentException
-import java.util.Date
 import kotlin.concurrent.thread
 
 data class UiState(
-    val connection: String = ""
+    val connection: String = "",
+    val currentFundraisers: List<Fundraiser> = listOf(),
+    val oldFundraisers: List<Fundraiser> = listOf()
 )
 
 
 sealed class Response(response: String) {
     protected var map = HashMap<String, String>()
     init {
-        response.split("\n").filterIndexed {i, _ -> i != 0}.forEach {
+        response.split("\n").forEach {
             val (key, value) = it.split(" : ")
-                map[key] = value
-            }
+            map[key] = value
+        }
     }
 }
 class CreateResponse(response: String) : Response(response) {
@@ -28,17 +29,23 @@ class CreateResponse(response: String) : Response(response) {
     }
 }
 class ListResponse(response: String) : Response(response) {
-    var items: List<ListResponseItem> = listOf()
+    var items: List<Fundraiser> = listOf()
+        private set
+
+    var current: Boolean = false
         private set
 
     init {
-        map.values.forEach {
-            val (name, goal, balance, deadline) = it.split(",")
-            items += ListResponseItem(name, goal.toDouble(),balance.toDouble(),  deadline)
+        current = map["current"].toBoolean()
+        map.keys.filter { it.toIntOrNull() != null }.forEach {
+            val key = it.toInt()
+            val value = map[it]
+            val (name, goal, balance, deadline) = value?.split(",") ?: throw Exception("Element doesn't exist!")
+            items += Fundraiser(key,name, goal.toDouble(),balance.toDouble(),  deadline)
         }
     }
 }
-data class ListResponseItem(val name: String, val goal: Double, val balance: Double,  val deadline: String)
+data class Fundraiser(val id: Int, val name: String, val goal: Double, val balance: Double, val deadline: String)
 class DonateResponse(response: String) : Response(response)
 class BalanceResponse(response: String) : Response(response) {
     var amount: Double = 0.0
@@ -72,7 +79,31 @@ class ViewModel private constructor(private val connectionRepository: Connection
                     "BALANCE" -> BalanceResponse(message)
                     else -> null
                 }
-                println(response)
+                if (response != null) {
+                    when(response) {
+                        is ListResponse -> {
+                            val currentFundraisers = if (response.current) response.items.sortedBy { it.deadline } else _uiState.value.currentFundraisers
+                            val oldFundraisers = if (!response.current) response.items.sortedBy { it.deadline } else _uiState.value.currentFundraisers
+                            println("CURRENT: $currentFundraisers")
+                            println("OLD: $oldFundraisers")
+                            updateUiState(
+                                _uiState.value.copy(
+                                    currentFundraisers = currentFundraisers,
+                                    oldFundraisers = oldFundraisers
+                                )
+                            )
+                        }
+                        is CreateResponse -> {
+                            sendMessage("endpoint : LIST\ncurrent : true")
+                            sendMessage("endpoint : LIST\ncurrent : false")
+                        }
+                        is BalanceResponse -> {}
+                        is DonateResponse -> {
+                            sendMessage("endpoint : LIST\ncurrent : true")
+                            sendMessage("endpoint : LIST\ncurrent : false")
+                        }
+                    }
+                }
             }
         }
         connectionRepository.onEndpointDisconnect = {
