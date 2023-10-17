@@ -1,7 +1,6 @@
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -187,7 +186,7 @@ fun Fundraiser(modifier: Modifier = Modifier, fundraiser: Fundraiser) {
                     modifier = Modifier.fillMaxWidth(),
                     value = amount,
                     onValueChange = {
-                            amount = it
+                        amount = it
                     },
                     placeholder = { Text("Amount To Donate...") })
                 Button(modifier = Modifier
@@ -280,7 +279,11 @@ fun ConnectionBar(modifier: Modifier = Modifier) = NavigationBar(modifier) {
 
         Row(Modifier.padding(5.dp).weight(4f), verticalAlignment = Alignment.CenterVertically) {
             var text by remember { mutableStateOf("") }
-            CustomTextField(Modifier.weight(3f), text, {if (it.length < 46) text = it}, {Text("Endpoint IP Address...")})
+            CustomTextField(
+                Modifier.weight(3f),
+                text,
+                { if (it.length < 46) text = it },
+                { Text("Endpoint IP Address...") })
             Button(modifier = Modifier.padding(5.dp).fillMaxHeight(), onClick = {
                 viewModel.openConnection(text) //parse and try to connect
                 },
