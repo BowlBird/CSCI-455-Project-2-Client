@@ -1,5 +1,5 @@
-# CSCI-455-Project-1-Client
-This is the client for CSCI-455: Networking and Parallel Computation project 1.
+# CSCI-455-Project-2-Client
+This is the client for CSCI-455: Networking and Parallel Computation project 2.
 
 ## Authors
 Brandon Gasser and Carson Miller
@@ -7,7 +7,7 @@ Brandon Gasser and Carson Miller
 ## What does the client do?
 The client displays a user interface for the user to interact with. It has options for the user to input what server they would like to connect to, or if none is given, will try to connect to the users self-hosted server. The client will then communicate with the server to allow the user to interact with different fundraisers by creating and donating to them.
 
-Because this works over a network when stated to, sometimes the tcp connection may fail. If this happens, either try to click "connect" again, or restart the client altogether.
+Because this works over a network when stated to, sometimes the udp packets may drop. If this happens, either try to retry your request, or restart the client altogether.
 
 ## Logging
 The client is built with MVVM architecture. With this in mind, each component will print whenever a component has been instructed to talk to the server. You will see multiple log messages for doing something such as connecting to a server to show each component communicating with another to achieve the goal with a final message from a base component stating its success. Messages are also printed out when sent or received so communication is clear between the client and server to the user. 

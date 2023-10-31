@@ -1,12 +1,8 @@
-import java.io.EOFException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.lang.IndexOutOfBoundsException
-import java.net.ConnectException
-import java.net.Socket
-import java.net.SocketException
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
 import kotlin.concurrent.thread
-import kotlin.jvm.Throws
+
 
 /**
  * Handles TCP Connections by automatically reading objects from
@@ -14,10 +10,13 @@ import kotlin.jvm.Throws
  *
  * Also allows sending Objects back to server.
  */
-private class Connection<T>(private val socket: Socket, private val  onReceive: () -> Unit = {}, private val onEndpointDisconnect: () -> Unit = {}) {
-    // Object output Stream must be initialized before Object Input Stream
-    val output = ObjectOutputStream(socket.getOutputStream())
-    val input = ObjectInputStream(socket.getInputStream())
+private class Connection<T>(
+    private val ip: String,
+    private val port: Int,
+    private val socket: DatagramSocket,
+    private val onReceive: () -> Unit = {},
+    private val onEndpointDisconnect: () -> Unit = {}
+) {
 
     // === Logic for Messages Thread ===
     private var receiveMessages = true
@@ -54,7 +53,7 @@ private class Connection<T>(private val socket: Socket, private val  onReceive: 
      * Returns IP address that you are connected to
      */
     val connection: String
-        get() = socket.inetAddress.hostAddress
+        get() = ip
 
     /**
      * Start listening for messages received from the server.
@@ -67,8 +66,10 @@ private class Connection<T>(private val socket: Socket, private val  onReceive: 
         while(receiveMessages) {
             //wrapped in try on the chance the endpoint disconnects randomly
             try {
+                val packet = DatagramPacket(ByteArray(1024), 1024, InetAddress.getByName(ip), port)
+                socket.receive(packet)
                 //read the object
-                with(input.readObject()) {
+                with(String(packet.data, 0, packet.length)) {
                     try {
                         //try to cast and add to internal message list
                         @Suppress("UNCHECKED_CAST")
@@ -99,8 +100,9 @@ private class Connection<T>(private val socket: Socket, private val  onReceive: 
      */
     fun sendMessage(message: T): Boolean {
         return try {
-            output.writeObject(message)
-            output.flush()
+            val packet = DatagramPacket(message.toString().toByteArray(), message.toString().length, InetAddress.getByName(ip), port)
+            socket.send(packet)
+
             println("Successfully sent '${message.toString().replace("\n", "\\n")}' to Endpoint")
             true
         } catch( e: Exception) {
@@ -141,36 +143,14 @@ class ConnectionRepository<T>(
     fun openConnection(ip: String, port: Int) =
         thread {
             // try to open the socket
-            val socket = try {
-                //need some logic to handle if a connection takes too long to connect
-                val currentThread = Thread.currentThread()
-                //will interrupt this thread if it takes too long
-                thread {
-                    Thread.sleep(1000)
-                    if (currentThread.isAlive) {
-                        currentThread.interrupt()
-                        println("Server Connection Interrupted. Timeout.")
-                    }
-                }
-                //try to open socket
-                val socket = try {
-                    Socket(ip, port)
-                } catch (e: ConnectException) {
-                    println("Connection with '$ip' on Port '$port' Refused.")
-                    null //return
-                }
-                socket //return
-            } catch (_: Exception) {
-                null //return
-            }
-
-
-            if (socket != null) {
-                println("Successfully Opened Socket Connection with '${socket.inetAddress.hostAddress}' on Port '${socket.port}'")
+            val socket = DatagramSocket()
+            println("Successfully Opened Socket Connection.")
                 //ensure there is only one connection
-                closeConnection()
+                _connection?.interrupt()
                 //create new connection
                 _connection = Connection(
+                    ip = ip,
+                    port = port,
                     socket = socket,
                     onReceive = {
                         //setup its own callback, as well as users callback
@@ -190,7 +170,6 @@ class ConnectionRepository<T>(
                     }
                 )
                 onConnect()
-            }
         }
 
     /**

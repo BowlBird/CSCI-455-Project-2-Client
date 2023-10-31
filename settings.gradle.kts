@@ -12,5 +12,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "CSCI-455-Project-1-Client"
+rootProject.name = "CSCI-455-Project-2-Client"
 

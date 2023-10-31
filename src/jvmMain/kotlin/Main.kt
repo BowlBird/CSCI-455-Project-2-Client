@@ -52,6 +52,8 @@ fun App() = AppTheme(true) {
                         try {
                             //test if the date passed is acceptable
                             LocalDate.parse(deadline)
+                            //test if the amount is positive
+                            if (amount.toDouble() <= 0) throw Exception("Invalid Amount")
                             //tell endpoint to create the fundraiser
                             viewModel.sendMessage(
                                 "endpoint : CREATE\n" +
