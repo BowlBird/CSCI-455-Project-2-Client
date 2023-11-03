@@ -21,12 +21,10 @@ NOTE: Logs are outputted to the command line the client was launched from **NOT*
 - [JDK 17+](https://www.oracle.com/java/technologies/downloads/#java17)
 - [Gradle](https://gradle.org/install/)
 
-Clone the repo and run `gradle build` in the project's base directory.
+Clone the repo and run `gradle run` in the project's base directory.
 
-## Running from Release
 
 ### Requirements
 
 - [JDK 17+](https://www.oracle.com/java/technologies/downloads/#java17)
 
-Download the Jar file in the releases tab and run it. Ensure that you download the Jar for your OS. Run `java -jar client-<Your OS>.jar`
